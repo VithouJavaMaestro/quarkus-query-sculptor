@@ -1,7 +1,9 @@
 package com.example;
 
+import com.example.entity.Animal;
 import com.example.sculptor.Pagination;
 import com.example.sculptor.QuerySculptor;
+import io.quarkus.hibernate.orm.runtime.dev.HibernateOrmDevInfoCreateDDLSupplier;
 import io.smallrye.mutiny.Uni;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;

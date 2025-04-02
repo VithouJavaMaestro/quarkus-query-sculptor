@@ -7,8 +7,10 @@ import io.agroal.api.security.SimplePassword;
 import io.agroal.narayana.NarayanaTransactionIntegration;
 import io.quarkus.hibernate.orm.PersistenceUnitExtension;
 import io.quarkus.hibernate.orm.runtime.customized.QuarkusConnectionProvider;
+import io.quarkus.hibernate.orm.runtime.dev.HibernateOrmDevController;
 import io.quarkus.hibernate.orm.runtime.tenant.TenantConnectionResolver;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.Persistence;
 import jakarta.transaction.TransactionManager;
 import jakarta.transaction.TransactionSynchronizationRegistry;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
@@ -38,7 +40,7 @@ public class DefaultTenantConnectionResolver implements TenantConnectionResolver
 
     @Override
     public ConnectionProvider resolve(String tenantId) {
-        if ("allweb".equals(tenantId) || "pps".equals(tenantId)) {
+        if ("pps".equals(tenantId)) {
             return new QuarkusConnectionProvider(createDatasource(tenantId));
         }
 

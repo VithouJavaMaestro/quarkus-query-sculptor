@@ -8,11 +8,7 @@ import jakarta.enterprise.context.RequestScoped;
 @RequestScoped
 public class DefaultTenantIdResolver implements TenantResolver {
 
-    private final jakarta.ws.rs.core.HttpHeaders headers;
 
-    public DefaultTenantIdResolver(jakarta.ws.rs.core.HttpHeaders headers) {
-        this.headers = headers;
-    }
 
     @Override
     public String getDefaultTenantId() {
@@ -21,6 +17,6 @@ public class DefaultTenantIdResolver implements TenantResolver {
 
     @Override
     public String resolveTenantId() {
-        return headers.getHeaderString("x-tenant-id");
+     return "pps";
     }
 }

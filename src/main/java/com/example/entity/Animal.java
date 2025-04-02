@@ -1,4 +1,4 @@
-package com.example;
+package com.example.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
@@ -11,6 +11,16 @@ public class Animal extends PanacheEntityBase {
     private Long id;
 
     private String name;
+
+    private String age;
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
 
     public Long getId() {
         return id;

@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.entity.Animal;
 import com.example.sculptor.QuerySculptorExecutor;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
