@@ -20,6 +20,10 @@ public interface QuerySculptorExecutor<ENTITY> {
         throw new UnsupportedOperationException("Unsupported findAll method");
     }
 
+    default <R> R findAll(QuerySculptor<ENTITY> querySculptor, Function<Query<ENTITY>, R> callback) {
+        throw new UnsupportedOperationException("Unsupported findAll method");
+    }
+
     default ENTITY findOne(QuerySculptor<ENTITY> querySculptor) {
         throw new UnsupportedOperationException("Unsupported findOne method");
     }

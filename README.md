@@ -30,3 +30,16 @@ public class UserQuerySculptor {
     }
 }
 ```
+```
+public class UserService {
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+    
+    public User similarUsername(String username) {
+        return userRepository.findOne(UserQuerySculptor.withUsernameLike(username));
+    }
+}
+```
