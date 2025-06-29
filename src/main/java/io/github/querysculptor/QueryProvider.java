@@ -5,11 +5,11 @@ import jakarta.persistence.criteria.*;
 /**
  * @author Chanthavithou THEN
  */
-class Query<ENTITY> {
+class QueryProvider<ENTITY> {
 
   private final QuerySculptorExecutor<ENTITY> delegate;
 
-  public Query(QuerySculptorExecutor<ENTITY> delegate) {
+  public QueryProvider(QuerySculptorExecutor<ENTITY> delegate) {
     this.delegate = delegate;
   }
 

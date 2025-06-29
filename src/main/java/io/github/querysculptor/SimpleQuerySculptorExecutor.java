@@ -1,15 +1,15 @@
 package io.github.querysculptor;
 
+import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.annotation.Priority;
 import jakarta.decorator.Decorator;
 import jakarta.decorator.Delegate;
 import jakarta.enterprise.inject.Any;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import jakarta.persistence.criteria.*;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Order;
 import org.hibernate.query.Page;
+import org.hibernate.query.Query;
 import org.hibernate.query.SortDirection;
 
 import java.util.ArrayList;
@@ -22,31 +22,31 @@ import java.util.function.Function;
 public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecutor<ENTITY> {
 
     private final QuerySculptorExecutor<ENTITY> delegate;
-    private final SessionFactory sessionFactory;
-    private final Query<ENTITY> query;
+
+
+    private final QueryProvider<ENTITY> queryProvider;
 
     public SimpleQuerySculptorExecutor(
-            @Delegate @Any QuerySculptorExecutor<ENTITY> delegate, SessionFactory sessionFactory) {
+            @Delegate @Any QuerySculptorExecutor<ENTITY> delegate) {
         this.delegate = delegate;
-        this.sessionFactory = sessionFactory;
-        query = new Query<>(this);
+        queryProvider = new QueryProvider<>(this);
     }
 
     @Override
     public List<ENTITY> list(QuerySculptor<ENTITY> querySculptor) {
-        return sessionFactory.fromTransaction(session -> session.createQuery(getCriteriaQuery(querySculptor, query.selectQuery())).getResultList());
+        return getSessionFactory().fromTransaction(session -> session.createQuery(getCriteriaQuery(querySculptor, queryProvider.selectQuery())).getResultList());
     }
 
     @Override
-    public org.hibernate.query.Query<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest) {
-       return sessionFactory.fromSession(session -> {
+    public <R> R findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest, Function<Query<ENTITY>, R> callback) {
+        return getSessionFactory().fromSession(session -> {
 
             Paging requestPaging = pageRequest.getPage();
             org.hibernate.query.Query<ENTITY> selectionQuery;
 
             if (requestPaging.isUnPaged()) {
                 selectionQuery =
-                        session.createQuery(getCriteriaQuery(querySculptor, query.selectQuery()));
+                        session.createQuery(getCriteriaQuery(querySculptor, queryProvider.selectQuery()));
             } else {
                 Page paging = Page.page(requestPaging.getSize(), requestPaging.getIndex());
                 Sort sort = pageRequest.getSort();
@@ -58,40 +58,36 @@ public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecuto
 
                 selectionQuery =
                         session
-                                .createQuery(getCriteriaQuery(querySculptor, query.selectQuery()))
+                                .createQuery(getCriteriaQuery(querySculptor, queryProvider.selectQuery()))
                                 .setPage(paging)
                                 .setOrder(orders);
             }
 
-            return selectionQuery;
+            return callback.apply(selectionQuery);
         });
-    }
 
-    @Override
-    public org.hibernate.query.Query<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor) {
-        return findAll(querySculptor, new PageRequest(Paging.unPaged()));
     }
 
     @Override
     public boolean exists(QuerySculptor<ENTITY> querySculptor) {
-        return sessionFactory.fromSession(session -> {
-            CriteriaQuery<ENTITY> criteriaQuery = getCriteriaQuery(querySculptor, query.selectQuery());
+        return getSessionFactory().fromSession(session -> {
+            CriteriaQuery<ENTITY> criteriaQuery = getCriteriaQuery(querySculptor, queryProvider.selectQuery());
             return session.createQuery(criteriaQuery).getResultCount() != 0;
         });
     }
 
     @Override
     public int delete(QuerySculptor<ENTITY> querySculptorQuery) {
-        return sessionFactory.fromTransaction(session -> {
-            CriteriaDelete<ENTITY> criteriaDelete = createCriteriaDelete(querySculptorQuery, query.deleteQuery());
+        return getSessionFactory().fromTransaction(session -> {
+            CriteriaDelete<ENTITY> criteriaDelete = createCriteriaDelete(querySculptorQuery, queryProvider.deleteQuery());
             return session.createMutationQuery(criteriaDelete).executeUpdate();
         });
     }
 
     @Override
     public int update(QuerySculptor<ENTITY> querySculptor, Consumer<CriteriaUpdate<ENTITY>> callback) {
-        return sessionFactory.fromTransaction(session -> {
-            CriteriaUpdate<ENTITY> criteriaUpdate = createCriteriaUpdate(querySculptor, query.updateQuery());
+        return getSessionFactory().fromTransaction(session -> {
+            CriteriaUpdate<ENTITY> criteriaUpdate = createCriteriaUpdate(querySculptor, queryProvider.updateQuery());
             callback.accept(criteriaUpdate);
             return session.createMutationQuery(criteriaUpdate).executeUpdate();
         });
@@ -99,8 +95,8 @@ public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecuto
 
     @Override
     public ENTITY findOne(QuerySculptor<ENTITY> querySculptor) {
-        return sessionFactory.fromTransaction(session -> {
-            CriteriaQuery<ENTITY> criteriaQuery = getCriteriaQuery(querySculptor, query.selectQuery());
+        return getSessionFactory().fromTransaction(session -> {
+            CriteriaQuery<ENTITY> criteriaQuery = getCriteriaQuery(querySculptor, queryProvider.selectQuery());
             return session.createQuery(criteriaQuery).getSingleResult();
         });
     }
@@ -131,15 +127,17 @@ public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecuto
     }
 
     public SessionFactory getSessionFactory() {
-        return sessionFactory;
+        return Panache.getSession().getSessionFactory();
     }
 
     public CriteriaBuilder getCriteriaBuilder() {
-        return sessionFactory.getCriteriaBuilder();
+        return getSessionFactory().getCriteriaBuilder();
     }
+
 
     @Override
     public Class<ENTITY> entityClass() {
+        //This need to improve without providing entity class
         Class<ENTITY> entityClass = delegate.entityClass();
         if (entityClass == null) {
             throw new IllegalStateException("Entity class cannot be null");

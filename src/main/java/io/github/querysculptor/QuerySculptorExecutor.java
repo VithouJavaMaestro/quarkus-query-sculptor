@@ -4,9 +4,11 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface QuerySculptorExecutor<ENTITY> {
 
@@ -14,11 +16,7 @@ public interface QuerySculptorExecutor<ENTITY> {
         throw new UnsupportedOperationException("Unsupported list method");
     }
 
-    default org.hibernate.query.Query<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest) {
-        throw new UnsupportedOperationException("Unsupported findAll method");
-    }
-
-    default org.hibernate.query.Query<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor) {
+    default <R> R findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest, Function<Query<ENTITY>, R> callback) {
         throw new UnsupportedOperationException("Unsupported findAll method");
     }
 
