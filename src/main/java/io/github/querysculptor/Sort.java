@@ -1,4 +1,4 @@
-package com.example.sculptor;
+package io.github.querysculptor;
 
 import java.util.ArrayList;
 import java.util.List;

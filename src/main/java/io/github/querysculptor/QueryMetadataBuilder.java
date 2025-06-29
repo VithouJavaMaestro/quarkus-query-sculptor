@@ -1,7 +1,7 @@
-package com.example.sculptor;
+package io.github.querysculptor;
 /**
  * @author Chanthavithou THEN
  */
-public interface QueryMetadataBuilder<ENTITY> {
+interface QueryMetadataBuilder<ENTITY> {
     QueryMetadata<ENTITY> buildQuery(QuerySculptorExecutor<ENTITY> executor);
 }

@@ -1,5 +1,6 @@
-package com.example.sculptor;
+package io.github.querysculptor;
 
+import jakarta.annotation.Priority;
 import jakarta.decorator.Decorator;
 import jakarta.decorator.Delegate;
 import jakarta.enterprise.inject.Any;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Decorator
+@Priority(0)
 public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecutor<ENTITY> {
 
     private final QuerySculptorExecutor<ENTITY> delegate;
@@ -35,8 +37,8 @@ public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecuto
     }
 
     @Override
-    public Pagination<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest) {
-        return sessionFactory.fromSession(session -> {
+    public void findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest, SelectionQueryCallback<ENTITY> executor) {
+        sessionFactory.inSession(session -> {
 
             Paging requestPaging = pageRequest.getPage();
             org.hibernate.query.Query<ENTITY> selectionQuery;
@@ -60,23 +62,13 @@ public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecuto
                                 .setOrder(orders);
             }
 
-            List<ENTITY> items = selectionQuery.getResultList();
-            long totalItems = selectionQuery.getResultCount();
-            long size = requestPaging.isUnPaged() ? totalItems : requestPaging.getSize();
-            int offset = requestPaging.getIndex();
-
-            return Pagination.builder(items)
-                    .page(offset)
-                    .size(size)
-                    .totalItems(totalItems)
-                    .build();
+            executor.execute(selectionQuery);
         });
     }
 
     @Override
-    public Pagination<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor) {
-        PageRequest pageRequest = new PageRequest(Paging.unPaged());
-        return findAll(querySculptor, pageRequest);
+    public void findAll(QuerySculptor<ENTITY> querySculptor, SelectionQueryCallback<ENTITY> callback) {
+        findAll(querySculptor, new PageRequest(Paging.unPaged()), callback);
     }
 
     @Override

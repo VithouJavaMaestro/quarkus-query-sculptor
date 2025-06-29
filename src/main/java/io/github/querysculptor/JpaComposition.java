@@ -1,4 +1,4 @@
-package com.example.sculptor;
+package io.github.querysculptor;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

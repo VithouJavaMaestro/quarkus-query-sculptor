@@ -1,4 +1,4 @@
-package com.example.sculptor;
+package io.github.querysculptor;
 
 import jakarta.persistence.criteria.*;
 
@@ -7,22 +7,22 @@ import jakarta.persistence.criteria.*;
  */
 class Query<ENTITY> {
 
-  private final QuerySculptorExecutor<ENTITY> executor;
+  private final QuerySculptorExecutor<ENTITY> delegate;
 
-  public Query(QuerySculptorExecutor<ENTITY> executor) {
-    this.executor = executor;
+  public Query(QuerySculptorExecutor<ENTITY> delegate) {
+    this.delegate = delegate;
   }
 
   public QueryMetadata<ENTITY> deleteQuery() {
-    return new DeleteQueryMetaDataBuilder<ENTITY>().buildQuery(executor);
+    return new DeleteQueryMetaDataBuilder<ENTITY>().buildQuery(delegate);
   }
 
   public QueryMetadata<ENTITY> selectQuery() {
-    return new SelectQueryMetadataBuilder<ENTITY>().buildQuery(executor);
+    return new SelectQueryMetadataBuilder<ENTITY>().buildQuery(delegate);
   }
 
   public QueryMetadata<ENTITY> updateQuery() {
-    return new UpdateQueryMetaDataBuilder<ENTITY>().buildQuery(executor);
+    return new UpdateQueryMetaDataBuilder<ENTITY>().buildQuery(delegate);
   }
 
   private static class DeleteQueryMetaDataBuilder<ENTITY>

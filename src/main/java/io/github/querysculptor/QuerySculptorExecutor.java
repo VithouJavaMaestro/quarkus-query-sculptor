@@ -1,4 +1,4 @@
-package com.example.sculptor;
+package io.github.querysculptor;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -14,11 +14,11 @@ public interface QuerySculptorExecutor<ENTITY> {
     throw new UnsupportedOperationException("Unsupported list method");
   }
 
-  default Pagination<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest) {
+  default void findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest, SelectionQueryCallback<ENTITY> callback) {
     throw new UnsupportedOperationException("Unsupported findAll method");
   }
 
-  default Pagination<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor) {
+  default void findAll(QuerySculptor<ENTITY> querySculptor, SelectionQueryCallback<ENTITY> callback) {
     throw new UnsupportedOperationException("Unsupported findAll method");
   }
 

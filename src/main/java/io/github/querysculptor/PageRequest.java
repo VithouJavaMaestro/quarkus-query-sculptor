@@ -1,4 +1,4 @@
-package com.example.sculptor;
+package io.github.querysculptor;
 
 public class PageRequest {
 
