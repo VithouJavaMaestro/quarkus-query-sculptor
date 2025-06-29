@@ -1,12 +1,6 @@
 🛠️ How to Use Quarkus Query Sculptor
 If you're familiar with Spring Data JPA Specification, you'll find this library very familiar.
 
-In Spring, you'd typically use:
-
-Spring JPA	Quarkus Query Sculptor
-Specification	QuerySculptor
-JpaSpecificationExecutor	QuerySculptorExecutor<T>
-
 This library provides a similar way to construct type-safe, composable, and dynamic queries in Quarkus, especially for PanacheRepository or similar data access patterns.
 
 🔰 Example Usage
