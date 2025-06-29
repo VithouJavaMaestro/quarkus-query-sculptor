@@ -15,6 +15,7 @@ import org.hibernate.query.SortDirection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Decorator
 @Priority(0)
@@ -37,8 +38,8 @@ public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecuto
     }
 
     @Override
-    public void findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest, SelectionQueryCallback<ENTITY> executor) {
-        sessionFactory.inSession(session -> {
+    public org.hibernate.query.Query<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor, PageRequest pageRequest) {
+       return sessionFactory.fromSession(session -> {
 
             Paging requestPaging = pageRequest.getPage();
             org.hibernate.query.Query<ENTITY> selectionQuery;
@@ -62,13 +63,13 @@ public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecuto
                                 .setOrder(orders);
             }
 
-            executor.execute(selectionQuery);
+            return selectionQuery;
         });
     }
 
     @Override
-    public void findAll(QuerySculptor<ENTITY> querySculptor, SelectionQueryCallback<ENTITY> callback) {
-        findAll(querySculptor, new PageRequest(Paging.unPaged()), callback);
+    public org.hibernate.query.Query<ENTITY> findAll(QuerySculptor<ENTITY> querySculptor) {
+        return findAll(querySculptor, new PageRequest(Paging.unPaged()));
     }
 
     @Override
@@ -142,9 +143,6 @@ public class SimpleQuerySculptorExecutor<ENTITY> implements QuerySculptorExecuto
         Class<ENTITY> entityClass = delegate.entityClass();
         if (entityClass == null) {
             throw new IllegalStateException("Entity class cannot be null");
-        }
-        if (!entityClass.isAnnotationPresent(Entity.class) || !entityClass.isAnnotationPresent(Table.class)) {
-            throw new IllegalStateException("Entity class must be annotated with @Entity and @Table");
         }
         return entityClass;
     }
